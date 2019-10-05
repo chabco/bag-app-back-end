@@ -4,7 +4,6 @@ const db = require('../db');
 
 // talk to DB and get all users
 router.get('/', (req, res) => {
-	console.log('Getting everyone!')
 	db.query("SELECT * FROM users", (err, results) =>{
 		if (err) {throw err}
 		res.json(results)
@@ -22,5 +21,13 @@ router.get('/:id', (req, res) => {
 		res.json(results);
 	})
 })
+
+
+// let front-end talk to DB
+// router.post('/register', (req, res) => {
+// 	const
+// })
+
+// router.post('/'), ()
 
 module.exports = router;
