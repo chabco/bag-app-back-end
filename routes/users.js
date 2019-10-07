@@ -34,13 +34,13 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
 	console.log(req.body)
 	const { username, email, password, hasAgreed } = req.body;
-	// if ((!username) || (!email) || (!password)) {
-	// 	// Empty entries? Stop.
-	// 	res.json({
-	// 		msg: "invalidData"
-	// 	})
-	// 	return;
-	// }
+	if ((!username) || (!email) || (!password)) {
+		// Empty entries? Stop.
+		res.json({
+			msg: "invalidData"
+		})
+		return;
+	}
 	// const checkUserQuery = `SELECT * FROM users WHERE email = ?`;
 	// db.query(checkUserQuery, [email], (err, results) => {
 		// if (err) {throw err};
@@ -64,13 +64,59 @@ router.post('/', (req, res) => {
 				res.json({
 					username,
 					email,
-					hasAgreed,
 					token,
 					msg: "userAdded"
 				})
 			})
 		// }
 	// })
+
+
+
+
+
+	// LOGIN STUFF
+
+	router.post('/login', (req, res) => {
+		const { email, password } = req.body;
+
+		const getEmail = `SELECT * FROM users WHERE email = ?`;
+
+		db.query(getEmail, [email], (err, results) => {
+			if (err) {throw err};
+			if (results.length > 0) {
+				const existingUser = results[0];
+
+				// activate when you fix the bcrypt for registration
+				// const passValidity = bcrypt.compareSync(password, existingUser.password)
+
+				if (password === existingUser.password) {
+					const token = randToken.uid(50);
+					const updateUserTokenQuery = `UPDATE users SET token = ? WHERE email = ?`
+
+					db.query(updateUserTokenQuery, [token, email], (err) => {
+						if (err) {throw err};
+					})
+
+					res.json({
+						username,
+						email: existingUser.email,
+						token,
+						msg: "loggedIn"
+						
+					})
+				} else {
+					res.json({
+						msg: "badPass"
+					})
+				}
+			} else {
+				res.json({
+					msg: "noEmail"
+				})
+			}
+		})
+	})
 })
 
 // router.post('/'), ()
