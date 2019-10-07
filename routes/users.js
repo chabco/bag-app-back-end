@@ -41,23 +41,23 @@ router.post('/', (req, res) => {
 		})
 		return;
 	}
-	// const checkUserQuery = `SELECT * FROM users WHERE email = ?`;
-	// db.query(checkUserQuery, [email], (err, results) => {
-		// if (err) {throw err};
-		// if (results.length > 0) {
-		// 	res.json({
-		// 		msg: "userExists"
-		// 	})
-		// }
-		// else {
+	const checkUserQuery = `SELECT * FROM users WHERE email = ?`;
+	db.query(checkUserQuery, [email], (err, results) => {
+		if (err) {throw err};
+		if (results.length > 0) {
+			res.json({
+				msg: "userExists"
+			})
+		}
+		else {
 			const insertUserQuery = `INSERT INTO users (username, email, password, hasAgreed, token) VALUES (?, ?, ?, ?, ?)`;
 
 			// Token and encrypted password. Safety first.
-			// const salt = bcrypt.getSaltSync(10);
-			// const hash = bcrypt.hashSync(password, salt);
+			const salt = bcrypt.genSaltSync(10);
+			const hash = bcrypt.hashSync(password, salt);
 			const token = randToken.uid(50);
 
-			db.query(insertUserQuery, [username, email, password, hasAgreed, token], (err) => {
+			db.query(insertUserQuery, [username, email, hash, hasAgreed, token], (err) => {
 				if(err) {throw err};
 				// Successful entry.
 
@@ -68,8 +68,8 @@ router.post('/', (req, res) => {
 					msg: "userAdded"
 				})
 			})
-		// }
-	// })
+		}
+	})
 
 
 
@@ -88,9 +88,9 @@ router.post('/', (req, res) => {
 				const existingUser = results[0];
 
 				// activate when you fix the bcrypt for registration
-				// const passValidity = bcrypt.compareSync(password, existingUser.password)
+				const passValidity = bcrypt.compareSync(password, existingUser.password)
 
-				if (password === existingUser.password) {
+				if (passValidity) {
 					const token = randToken.uid(50);
 					const updateUserTokenQuery = `UPDATE users SET token = ? WHERE email = ?`
 
