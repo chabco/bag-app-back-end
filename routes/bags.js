@@ -10,4 +10,16 @@ router.get('/', (req, res) => {
 	})
 })
 
+// Obtain one bag from DB by ID.
+router.get('/:id', (req, res) => {
+	console.log("Fetching user by ID:" + req.params.id)
+	
+	const bagID = req.params.id
+
+	db.query("SELECT * FROM bags WHERE id = ?", [bagID], (err, results) => {
+		console.log("I think we fetched correctly?");
+		res.json(results);
+	})
+})
+
 module.exports = router;
